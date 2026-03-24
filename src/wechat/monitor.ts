@@ -69,12 +69,12 @@ export function createMonitor(api: WeChatApi, callbacks: MonitorCallbacks) {
                 for (const id of toDelete) recentMsgIds.delete(id);
               }
             }
-            try {
-              await callbacks.onMessage(msg);
-            } catch (err) {
+            // Fire-and-forget: don't block the polling loop on message processing
+            // This allows permission responses (y/n) to be received while a query is running
+            callbacks.onMessage(msg).catch((err) => {
               const msg2 = err instanceof Error ? err.message : String(err);
               logger.error('Error processing message', { error: msg2, messageId: msg.message_id });
-            }
+            });
           }
         }
 

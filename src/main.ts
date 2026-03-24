@@ -266,13 +266,22 @@ async function handleMessage(
   // -- Permission state handling --
 
   if (session.state === 'waiting_permission') {
+    // Check if there's actually a pending permission (may be lost after restart)
+    const pendingPerm = permissionBroker.getPending(account.accountId);
+    if (!pendingPerm) {
+      session.state = 'idle';
+      sessionStore.save(account.accountId, session);
+      await sender.sendText(fromUserId, contextToken, '⚠️ 权限请求已失效（可能因服务重启），请重新发送你的请求。');
+      return;
+    }
+
     const lower = userText.toLowerCase();
     if (lower === 'y' || lower === 'yes') {
-      permissionBroker.resolvePermission(account.accountId, true);
-      await sender.sendText(fromUserId, contextToken, '✅ 已允许');
+      const resolved = permissionBroker.resolvePermission(account.accountId, true);
+      await sender.sendText(fromUserId, contextToken, resolved ? '✅ 已允许' : '⚠️ 权限请求处理失败，可能已超时');
     } else if (lower === 'n' || lower === 'no') {
-      permissionBroker.resolvePermission(account.accountId, false);
-      await sender.sendText(fromUserId, contextToken, '❌ 已拒绝');
+      const resolved = permissionBroker.resolvePermission(account.accountId, false);
+      await sender.sendText(fromUserId, contextToken, resolved ? '❌ 已拒绝' : '⚠️ 权限请求处理失败，可能已超时');
     } else {
       await sender.sendText(fromUserId, contextToken, '正在等待权限审批，请回复 y 或 n。');
     }

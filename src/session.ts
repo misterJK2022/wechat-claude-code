@@ -22,6 +22,7 @@ export interface ChatMessage {
 
 export interface Session {
   sdkSessionId?: string;
+  previousSdkSessionId?: string;
   workingDirectory: string;
   model?: string;
   permissionMode?: 'default' | 'acceptEdits' | 'plan' | 'auto';

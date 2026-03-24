@@ -1,16 +1,28 @@
 import type { CommandContext, CommandResult } from './router.js';
 import { scanAllSkills, formatSkillList, findSkill, type SkillInfo } from '../claude/skill-scanner.js';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const HELP_TEXT = `可用命令：
 
+会话管理：
   /help             显示帮助
   /clear            清除当前会话
-  /cwd <路径>       切换工作目录
-  /model <名称>     切换 Claude 模型
-  /permission <模式> 切换权限模式
+  /reset            完全重置（包括工作目录等设置）
   /status           查看当前会话状态
-  /skills           列出已安装的 skill
-  /history [数量]   查看对话记录（默认显示最近20条）
+  /compact          压缩上下文（开始新 SDK 会话，保留历史）
+  /history [数量]   查看对话记录（默认最近20条）
+  /undo [数量]      撤销最近对话（默认1条）
+
+配置：
+  /cwd [路径]       查看或切换工作目录
+  /model [名称]     查看或切换 Claude 模型
+  /permission [模式] 查看或切换权限模式
+
+其他：
+  /skills [full]    列出已安装的 skill（full 显示描述）
+  /version          查看版本信息
   /<skill> [参数]   触发已安装的 skill
 
 直接输入文字即可与 Claude Code 对话`;
@@ -83,7 +95,7 @@ export function handlePermission(ctx: CommandContext, args: string): CommandResu
     ];
     return { reply: lines.join('\n'), handled: true };
   }
-  const mode = args.trim().toLowerCase();
+  const mode = args.trim();
   if (!PERMISSION_MODES.includes(mode as any)) {
     return {
       reply: `未知模式: ${mode}\n可用: ${PERMISSION_MODES.join(', ')}`,
@@ -110,14 +122,20 @@ export function handleStatus(ctx: CommandContext): CommandResult {
   return { reply: lines.join('\n'), handled: true };
 }
 
-export function handleSkills(): CommandResult {
+export function handleSkills(args: string): CommandResult {
   invalidateSkillCache();
   const skills = getSkills();
   if (skills.length === 0) {
     return { reply: '未找到已安装的 skill。', handled: true };
   }
-  const lines = skills.map(s => `/${s.name} — ${s.description}`);
-  return { reply: `📋 已安装的 Skill (${skills.length}):\n\n${lines.join('\n')}`, handled: true };
+
+  const showFull = args.trim().toLowerCase() === 'full';
+  if (showFull) {
+    const lines = skills.map(s => `/${s.name}\n   ${s.description}`);
+    return { reply: `📋 已安装的 Skill (${skills.length}):\n\n${lines.join('\n\n')}`, handled: true };
+  }
+  const lines = skills.map(s => `/${s.name}`);
+  return { reply: `📋 已安装的 Skill (${skills.length}):\n\n${lines.join('\n')}\n\n使用 /skills full 查看完整描述`, handled: true };
 }
 
 const MAX_HISTORY_LIMIT = 100;
@@ -132,6 +150,61 @@ export function handleHistory(ctx: CommandContext, args: string): CommandResult 
   const historyText = ctx.getChatHistoryText?.(effectiveLimit) || '暂无对话记录';
 
   return { reply: `📝 对话记录（最近${effectiveLimit}条）:\n\n${historyText}`, handled: true };
+}
+
+/** 完全重置会话（包括工作目录等设置） */
+export function handleReset(ctx: CommandContext): CommandResult {
+  ctx.rejectPendingPermission?.();
+  const newSession = ctx.clearSession();
+  newSession.workingDirectory = process.cwd();
+  newSession.model = undefined;
+  newSession.permissionMode = undefined;
+  Object.assign(ctx.session, newSession);
+  return { reply: '✅ 会话已完全重置，所有设置恢复默认。', handled: true };
+}
+
+/** 压缩上下文 — 清除 SDK 会话 ID，开始新上下文但保留聊天历史 */
+export function handleCompact(ctx: CommandContext): CommandResult {
+  const currentSessionId = ctx.session.sdkSessionId;
+  if (!currentSessionId) {
+    return { reply: 'ℹ️ 当前没有活动的 SDK 会话，无需压缩。', handled: true };
+  }
+  ctx.updateSession({
+    previousSdkSessionId: currentSessionId,
+    sdkSessionId: undefined,
+  });
+  return {
+    reply: '✅ 上下文已压缩\n\n下次消息将开始新的 SDK 会话（token 清零）\n聊天历史已保留，可用 /history 查看',
+    handled: true,
+  };
+}
+
+/** 撤销最近 N 条对话 */
+export function handleUndo(ctx: CommandContext, args: string): CommandResult {
+  const count = args ? parseInt(args, 10) : 1;
+  if (isNaN(count) || count <= 0) {
+    return { reply: '用法: /undo [数量]\n例: /undo 2（撤销最近2条对话）', handled: true };
+  }
+  const history = ctx.session.chatHistory || [];
+  if (history.length === 0) {
+    return { reply: '⚠️ 没有对话记录可撤销', handled: true };
+  }
+  const actualCount = Math.min(count, history.length);
+  ctx.session.chatHistory = history.slice(0, -actualCount);
+  ctx.updateSession({ chatHistory: ctx.session.chatHistory });
+  return { reply: `✅ 已撤销最近 ${actualCount} 条对话`, handled: true };
+}
+
+/** 查看版本信息 */
+export function handleVersion(): CommandResult {
+  try {
+    const __dirname = fileURLToPath(new URL('.', import.meta.url));
+    const pkg = JSON.parse(readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf-8'));
+    const version = pkg.version || 'unknown';
+    return { reply: `wechat-claude-code v${version}`, handled: true };
+  } catch {
+    return { reply: 'wechat-claude-code (version unknown)', handled: true };
+  }
 }
 
 export function handleUnknown(cmd: string, args: string): CommandResult {
